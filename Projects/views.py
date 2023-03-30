@@ -10,6 +10,14 @@ from . import models, forms
 class ProjectListView(ListView):
     model = models.Projects
     template_name = "project/list.html"
+    paginate_by = 6
+
+    def get_queryset(self):
+        query_set = super().get_queryset()
+        where={}
+        q = self.request.GET.get('q', None)
+        if q: where['title__icontains'] = q
+        return query_set.filter(**where)
 
 
 class ProjectCreateView(CreateView):
@@ -24,7 +32,7 @@ class ProjectUpdateView(UpdateView):
     form_class = forms.ProjectUpdateForm
     template_name = "project/update.html"
     success_url = reverse_lazy('project_list')
-
+    context_object_name = "project"
     def get_success_url(self):
         return reverse('project_update', args=[self.object.id])
 
@@ -33,6 +41,8 @@ class ProjectDeleteView(DeleteView):
     model = models.Projects
     template_name = "project/delete.html"
     success_url = reverse_lazy('project_list')
+    context_object_name = "project"
+
 
 
 class TaskCreateView(CreateView):
